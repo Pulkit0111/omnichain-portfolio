@@ -28,7 +28,8 @@ portfolioRouter.get('/:walletAddress', (req, res) => __awaiter(void 0, void 0, v
                 balances[chainName] = {
                     native: {
                         symbol: chainConfig.nativeToken.symbol,
-                        balance: nativeBalance
+                        balance: nativeBalance.balance,
+                        valueInUSD: nativeBalance.valueInUSD,
                     },
                     erc20Tokens: []
                 };
