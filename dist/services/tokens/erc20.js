@@ -65,12 +65,12 @@ class ERC20Service {
             return yield contract.methods.symbol().call();
         });
     }
-    getTokenBalances(walletAddress) {
+    getTokenBalances(chainName, walletAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const balances = yield Promise.all(tokens_1.SUPPORTED_TOKENS.map((token) => __awaiter(this, void 0, void 0, function* () {
-                const balanceInUnit = yield this.getTokenBalance(token.chainName, token.address, walletAddress);
-                const decimals = yield this.getTokenDecimals(token.chainName, token.address);
-                const balanceInDec = web3Provider_1.web3Provider.getProvider(token.chainName).utils.fromWei(balanceInUnit, decimals);
+            const balances = yield Promise.all(tokens_1.SUPPORTED_TOKENS.filter((token) => token.chainName === chainName).map((token) => __awaiter(this, void 0, void 0, function* () {
+                const balanceInUnit = yield this.getTokenBalance(chainName, token.address, walletAddress);
+                const decimals = yield this.getTokenDecimals(chainName, token.address);
+                const balanceInDec = web3Provider_1.web3Provider.getProvider(chainName).utils.fromWei(balanceInUnit, decimals);
                 return {
                     symbol: token.symbol,
                     balance: balanceInDec

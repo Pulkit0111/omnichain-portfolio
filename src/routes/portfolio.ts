@@ -2,24 +2,40 @@ import { Router } from 'express';
 import { web3Provider } from '../services/blockchain/web3Provider';
 import { SUPPORTED_CHAINS } from '../config/chains';
 import { erc20Service } from '../services/tokens/erc20';
+import { SUPPORTED_TOKENS } from '../config/tokens';
 const portfolioRouter = Router();
 
 portfolioRouter.get('/:walletAddress', async (req, res) => {
   try {
     const { walletAddress } = req.params;
-    let balances: { [key: string]: string } = {};
+    let balances: { [key: string]: any } = {};
 
-    // Fetch native token balances for all supported chains
+    // Fetch native token and ERC20 balances for each chain
     for (const [chainName, chainConfig] of Object.entries(SUPPORTED_CHAINS)) {
-      const balance = await web3Provider.getNativeBalance(chainName, walletAddress);
-      balances[chainConfig.nativeToken.symbol] = balance;
-    }
+      // Get native token balance
+      const nativeBalance = await web3Provider.getNativeBalance(chainName, walletAddress);
+      
+      // Initialize chain object if not exists
+      if (!balances[chainName]) {
+        balances[chainName] = {
+          native: {
+            symbol: chainConfig.nativeToken.symbol,
+            balance: nativeBalance
+          },
+          erc20Tokens: []
+        };
+      }
 
-    //Fetch ERC20 Token Balances
-    const erc20Balances = await erc20Service.getTokenBalances(walletAddress);
-    erc20Balances.forEach((balance) => {
-      balances[balance.symbol] = balance.balance;
-    });
+      // Get ERC20 balances for this chain
+      const erc20Balances = await erc20Service.getTokenBalances(chainName, walletAddress);
+      const chainErc20Tokens = erc20Balances.filter((token: { symbol: string }) => 
+        SUPPORTED_TOKENS.some((t: { symbol: string; chainName: string }) => 
+          t.symbol === token.symbol && t.chainName === chainName
+        )
+      );
+
+      balances[chainName].erc20Tokens = chainErc20Tokens;
+    }
 
     res.json({
       wallet: walletAddress,

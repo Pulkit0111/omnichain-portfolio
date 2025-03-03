@@ -13,21 +13,31 @@ const express_1 = require("express");
 const web3Provider_1 = require("../services/blockchain/web3Provider");
 const chains_1 = require("../config/chains");
 const erc20_1 = require("../services/tokens/erc20");
+const tokens_1 = require("../config/tokens");
 const portfolioRouter = (0, express_1.Router)();
 portfolioRouter.get('/:walletAddress', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { walletAddress } = req.params;
         let balances = {};
-        // Fetch native token balances for all supported chains
+        // Fetch native token and ERC20 balances for each chain
         for (const [chainName, chainConfig] of Object.entries(chains_1.SUPPORTED_CHAINS)) {
-            const balance = yield web3Provider_1.web3Provider.getNativeBalance(chainName, walletAddress);
-            balances[chainConfig.nativeToken.symbol] = balance;
+            // Get native token balance
+            const nativeBalance = yield web3Provider_1.web3Provider.getNativeBalance(chainName, walletAddress);
+            // Initialize chain object if not exists
+            if (!balances[chainName]) {
+                balances[chainName] = {
+                    native: {
+                        symbol: chainConfig.nativeToken.symbol,
+                        balance: nativeBalance
+                    },
+                    erc20Tokens: []
+                };
+            }
+            // Get ERC20 balances for this chain
+            const erc20Balances = yield erc20_1.erc20Service.getTokenBalances(chainName, walletAddress);
+            const chainErc20Tokens = erc20Balances.filter((token) => tokens_1.SUPPORTED_TOKENS.some((t) => t.symbol === token.symbol && t.chainName === chainName));
+            balances[chainName].erc20Tokens = chainErc20Tokens;
         }
-        //Fetch ERC20 Token Balances
-        const erc20Balances = yield erc20_1.erc20Service.getTokenBalances(walletAddress);
-        erc20Balances.forEach((balance) => {
-            balances[balance.symbol] = balance.balance;
-        });
         res.json({
             wallet: walletAddress,
             balances
