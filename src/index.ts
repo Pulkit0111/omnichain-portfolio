@@ -1,7 +1,7 @@
 import express from 'express';
 import { config } from 'dotenv';
 import cors from 'cors';
-import portfolioRouter from './routes/portfolio';
+import portfolioRouter from './routes/portfolio.routes';
 config();
 
 const app = express();

@@ -2,6 +2,7 @@ import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import { web3Provider } from '../blockchain/web3Provider';
 import { SUPPORTED_TOKENS } from '../../config/tokens';
+import { getPrices } from '../portfolio/price';
 
 const ERC20_ABI: AbiItem[] = [
   {
@@ -59,13 +60,18 @@ export class ERC20Service {
   }
 
   async getTokenBalances(chainName: string, walletAddress: string): Promise<{ symbol: string, balance: string}[]> {  
+    const prices = await getPrices();
     const balances = await Promise.all(SUPPORTED_TOKENS.filter((token) => token.chainName === chainName).map(async (token) => {
       const balanceInUnit = await this.getTokenBalance(chainName, token.address, walletAddress);
       const decimals = await this.getTokenDecimals(chainName, token.address);
       const balanceInDec = web3Provider.getProvider(chainName).utils.fromWei(balanceInUnit, decimals);
+      const tokenPrice = prices[token.coinGeckoId].usd;
+      const tokenBalance = Number(balanceInDec);
+      const tokenValueInUSD = tokenPrice * tokenBalance;
       return {
         symbol: token.symbol,
-        balance: balanceInDec
+        balance: balanceInDec,
+        valueInUSD: tokenValueInUSD
       };
     }));
     return balances;
