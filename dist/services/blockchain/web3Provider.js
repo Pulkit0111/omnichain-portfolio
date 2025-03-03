@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.web3Provider = void 0;
 const web3_1 = __importDefault(require("web3"));
 const chains_1 = require("../../config/chains");
+const price_1 = require("../portfolio/price");
 class Web3Provider {
     constructor() {
         this.providers = {};
@@ -32,11 +33,17 @@ class Web3Provider {
     }
     getNativeBalance(chainName, address) {
         return __awaiter(this, void 0, void 0, function* () {
+            const prices = yield (0, price_1.getPrices)();
             try {
                 const web3 = this.getProvider(chainName);
                 const balanceInUnit = yield web3.eth.getBalance(address);
                 const balanceInDec = web3.utils.fromWei(balanceInUnit, 'ether');
-                return balanceInDec;
+                const chainConfig = chains_1.SUPPORTED_CHAINS[chainName];
+                const nativeValueInUSD = Number(balanceInDec) * prices[chainConfig.nativeToken.coinGeckoId].usd;
+                return {
+                    balance: balanceInDec,
+                    valueInUSD: nativeValueInUSD
+                };
             }
             catch (error) {
                 console.error(`Error fetching balance for ${chainName}:`, error);
