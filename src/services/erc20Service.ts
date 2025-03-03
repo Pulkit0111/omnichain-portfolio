@@ -1,8 +1,8 @@
 import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
-import { web3Provider } from '../blockchain/web3Provider';
-import { SUPPORTED_TOKENS } from '../../config/tokens';
-import { getPrices } from '../portfolio/price';
+import { web3Provider } from './web3Service';
+import { SUPPORTED_TOKENS } from '../config/tokens';
+import { getPrices } from './priceFetchService';
 
 const ERC20_ABI: AbiItem[] = [
   {

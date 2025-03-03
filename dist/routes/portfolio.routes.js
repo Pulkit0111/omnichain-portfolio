@@ -10,9 +10,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const web3Provider_1 = require("../services/blockchain/web3Provider");
+const web3Service_1 = require("../services/web3Service");
 const chains_1 = require("../config/chains");
-const erc20_1 = require("../services/tokens/erc20");
+const erc20Service_1 = require("../services/erc20Service");
 const tokens_1 = require("../config/tokens");
 const portfolioRouter = (0, express_1.Router)();
 portfolioRouter.get('/:walletAddress', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -22,7 +22,7 @@ portfolioRouter.get('/:walletAddress', (req, res) => __awaiter(void 0, void 0, v
         // Fetch native token and ERC20 balances for each chain
         for (const [chainName, chainConfig] of Object.entries(chains_1.SUPPORTED_CHAINS)) {
             // Get native token balance
-            const nativeBalance = yield web3Provider_1.web3Provider.getNativeBalance(chainName, walletAddress);
+            const nativeBalance = yield web3Service_1.web3Provider.getNativeBalance(chainName, walletAddress);
             // Initialize chain object if not exists
             if (!balances[chainName]) {
                 balances[chainName] = {
@@ -34,7 +34,7 @@ portfolioRouter.get('/:walletAddress', (req, res) => __awaiter(void 0, void 0, v
                 };
             }
             // Get ERC20 balances for this chain
-            const erc20Balances = yield erc20_1.erc20Service.getTokenBalances(chainName, walletAddress);
+            const erc20Balances = yield erc20Service_1.erc20Service.getTokenBalances(chainName, walletAddress);
             const chainErc20Tokens = erc20Balances.filter((token) => tokens_1.SUPPORTED_TOKENS.some((t) => t.symbol === token.symbol && t.chainName === chainName));
             balances[chainName].erc20Tokens = chainErc20Tokens;
         }

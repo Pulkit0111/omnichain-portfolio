@@ -1,6 +1,6 @@
 import Web3 from 'web3';
-import { SUPPORTED_CHAINS } from '../../config/chains';
-import { getPrices } from '../portfolio/price';
+import { SUPPORTED_CHAINS } from '../config/chains';
+import { getPrices } from './priceFetchService';
 
 class Web3Provider {
   private providers: { [key: string]: Web3 } = {};

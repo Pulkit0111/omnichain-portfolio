@@ -1,7 +1,7 @@
 import { Router } from 'express'
-import { web3Provider } from '../services/blockchain/web3Provider'
+import { web3Provider } from '../services/web3Service'
 import { SUPPORTED_CHAINS } from '../config/chains'
-import { erc20Service } from '../services/tokens/erc20'
+import { erc20Service } from '../services/erc20Service'
 import { SUPPORTED_TOKENS } from '../config/tokens'
 
 const portfolioRouter = Router()
