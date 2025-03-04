@@ -20,7 +20,7 @@ class Web3Provider {
     return provider;
   }
 
-  async getNativeBalance(chainName: string, address: string): Promise<{balance: string, valueInUSD: number}> {
+  async getNativeBalance(chainName: string, address: string): Promise<{symbol: string, balance: string, valueInUSD: number}> {
     const prices = await getPrices();
     try {
       const web3 = this.getProvider(chainName);
@@ -29,6 +29,7 @@ class Web3Provider {
       const chainConfig = SUPPORTED_CHAINS[chainName];
       const nativeValueInUSD = Number(balanceInDec) * prices[chainConfig.nativeToken.coinGeckoId].usd;
       return {
+        symbol: chainConfig.nativeToken.symbol,
         balance: balanceInDec,
         valueInUSD: nativeValueInUSD
       };

@@ -41,6 +41,7 @@ class Web3Provider {
                 const chainConfig = chains_1.SUPPORTED_CHAINS[chainName];
                 const nativeValueInUSD = Number(balanceInDec) * prices[chainConfig.nativeToken.coinGeckoId].usd;
                 return {
+                    symbol: chainConfig.nativeToken.symbol,
                     balance: balanceInDec,
                     valueInUSD: nativeValueInUSD
                 };
