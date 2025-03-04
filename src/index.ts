@@ -2,6 +2,7 @@ import express from 'express';
 import { config } from 'dotenv';
 import cors from 'cors';
 import portfolioRouter from './routes/portfolio.routes';
+import { connectToDatabse } from "./config/dataBase"
 config();
 
 const app = express();
@@ -19,5 +20,6 @@ app.get("/health", (req,res) => {
 })
 
 app.listen(port, () => {
+  connectToDatabse()
   console.log(`Server is running on port ${port}`);
 });

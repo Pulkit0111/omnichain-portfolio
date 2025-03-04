@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const dotenv_1 = require("dotenv");
 const cors_1 = __importDefault(require("cors"));
 const portfolio_routes_1 = __importDefault(require("./routes/portfolio.routes"));
+const dataBase_1 = require("./config/dataBase");
 (0, dotenv_1.config)();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
@@ -19,5 +20,6 @@ app.get("/health", (req, res) => {
     });
 });
 app.listen(port, () => {
+    (0, dataBase_1.connectToDatabse)();
     console.log(`Server is running on port ${port}`);
 });
