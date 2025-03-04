@@ -52,32 +52,61 @@ class ERC20Service {
     }
     getTokenDecimals(chainName, tokenAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const web3 = web3Service_1.web3Provider.getProvider(chainName);
-            const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
-            const decimals = yield contract.methods.decimals().call();
-            return Number(decimals);
+            try {
+                const web3 = web3Service_1.web3Provider.getProvider(chainName);
+                const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+                const decimals = yield contract.methods.decimals().call();
+                return Number(decimals);
+            }
+            catch (error) {
+                console.error(`Error fetching token decimals:`, error);
+                throw error;
+            }
         });
     }
     getTokenSymbol(chainName, tokenAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const web3 = web3Service_1.web3Provider.getProvider(chainName);
-            const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
-            return yield contract.methods.symbol().call();
+            try {
+                const web3 = web3Service_1.web3Provider.getProvider(chainName);
+                const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+                return yield contract.methods.symbol().call();
+            }
+            catch (error) {
+                console.error(`Error fetching token symbol:`, error);
+                throw error;
+            }
         });
     }
     getTokenBalances(chainName, walletAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const balances = yield Promise.all(tokens_1.SUPPORTED_TOKENS.filter((token) => token.chainName === chainName).map((token) => __awaiter(this, void 0, void 0, function* () {
-                const balanceInUnit = yield this.getTokenBalance(chainName, token.address, walletAddress);
-                const decimals = yield this.getTokenDecimals(chainName, token.address);
-                const balanceInDec = web3Service_1.web3Provider.getProvider(chainName).utils.fromWei(balanceInUnit, decimals);
-                return {
-                    symbol: token.symbol,
-                    balance: balanceInDec,
-                    coinGeckoId: token.coinGeckoId
-                };
-            })));
-            return balances;
+            try {
+                const balances = yield Promise.all(tokens_1.SUPPORTED_TOKENS.filter((token) => token.chainName === chainName).map((token) => __awaiter(this, void 0, void 0, function* () {
+                    try {
+                        const balanceInUnit = yield this.getTokenBalance(chainName, token.address, walletAddress);
+                        const decimals = yield this.getTokenDecimals(chainName, token.address);
+                        const balanceInDec = web3Service_1.web3Provider.getProvider(chainName).utils.fromWei(balanceInUnit, decimals);
+                        return {
+                            symbol: token.symbol,
+                            balance: balanceInDec,
+                            coinGeckoId: token.coinGeckoId
+                        };
+                    }
+                    catch (error) {
+                        console.error(`Error processing token ${token.symbol}:`, error);
+                        // Return a zero balance for failed tokens instead of failing the entire request
+                        return {
+                            symbol: token.symbol,
+                            balance: '0',
+                            coinGeckoId: token.coinGeckoId
+                        };
+                    }
+                })));
+                return balances;
+            }
+            catch (error) {
+                console.error('Error fetching token balances:', error);
+                throw error;
+            }
         });
     }
 }

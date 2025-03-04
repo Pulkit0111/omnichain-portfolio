@@ -14,32 +14,44 @@ const asset_model_1 = require("../models/asset.model");
 class DatabaseService {
     getWalletBalance(walletAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const wallet = yield asset_model_1.WalletBalance.findOne({ wallet: walletAddress }).lean();
-            if (!wallet) {
-                return null; // First time wallet
+            try {
+                const wallet = yield asset_model_1.WalletBalance.findOne({ wallet: walletAddress }).lean();
+                if (!wallet) {
+                    return null; // First time wallet
+                }
+                // Check if data is stale
+                const now = new Date();
+                const lastUpdated = new Date(wallet.lastUpdated);
+                const isStale = now.getTime() - lastUpdated.getTime() > DatabaseService.STALE_THRESHOLD;
+                // Using lean() instead of toObject() and constructing response directly from the raw document
+                const result = {
+                    wallet: wallet.wallet,
+                    balances: wallet.balances,
+                    lastUpdated: wallet.lastUpdated,
+                    isStale
+                };
+                return result;
             }
-            // Check if data is stale
-            const now = new Date();
-            const lastUpdated = new Date(wallet.lastUpdated);
-            const isStale = now.getTime() - lastUpdated.getTime() > DatabaseService.STALE_THRESHOLD;
-            // Using lean() instead of toObject() and constructing response directly from the raw document
-            const result = {
-                wallet: wallet.wallet,
-                balances: wallet.balances,
-                lastUpdated: wallet.lastUpdated,
-                isStale
-            };
-            return result;
+            catch (error) {
+                console.error('Error getting wallet balance:', error);
+                throw new Error('Failed to get wallet balance from database');
+            }
         });
     }
     updateWalletBalance(walletAddress, balances) {
         return __awaiter(this, void 0, void 0, function* () {
-            const update = {
-                wallet: walletAddress,
-                balances: balances,
-                lastUpdated: new Date()
-            };
-            const result = yield asset_model_1.WalletBalance.findOneAndUpdate({ wallet: walletAddress }, update, { upsert: true, new: true });
+            try {
+                const update = {
+                    wallet: walletAddress,
+                    balances: balances,
+                    lastUpdated: new Date()
+                };
+                const result = yield asset_model_1.WalletBalance.findOneAndUpdate({ wallet: walletAddress }, update, { upsert: true, new: true });
+            }
+            catch (error) {
+                console.error('Error updating wallet balance:', error);
+                throw new Error('Failed to update wallet balance in database');
+            }
         });
     }
 }

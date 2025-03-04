@@ -9,6 +9,11 @@ const coinGeckoIds = [...erc20TokenIds, ...nativeTokenIds];
 const coinGeckoApi = `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoIds.join(',')}&vs_currencies=usd`;   
 
 export const getPrices = async () => {
-  const response = await axios.get(coinGeckoApi);
-  return response.data;
+  try {
+    const response = await axios.get(coinGeckoApi);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching prices from CoinGecko:', error);
+    throw new Error('Failed to fetch token prices');
+  }
 }
