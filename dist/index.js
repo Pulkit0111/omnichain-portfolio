@@ -8,14 +8,6 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const cors_1 = __importDefault(require("cors"));
 const portfolio_routes_1 = __importDefault(require("./routes/portfolio.routes"));
 const dataBase_1 = require("./config/dataBase");
-// Add these debug logs
-console.log('=== Server Initialization Starting ===');
-process.on('uncaughtException', (err) => {
-    console.error('Uncaught Exception:', err);
-});
-process.on('unhandledRejection', (err) => {
-    console.error('Unhandled Rejection:', err);
-});
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
@@ -32,7 +24,5 @@ app.get('/', (req, res) => {
 });
 app.listen(port, () => {
     (0, dataBase_1.connectToDatabse)();
-    console.log(`=== Server is running on port ${port} ===`);
-    console.log('Environment:', process.env.NODE_ENV);
-    console.log('Current working directory:', process.cwd());
+    console.log(`Server is running on port ${port}`);
 });
