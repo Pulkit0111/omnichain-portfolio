@@ -21,7 +21,13 @@ const nativeTokenIds = Object.values(chains_1.SUPPORTED_CHAINS).map((chain) => c
 const coinGeckoIds = [...erc20TokenIds, ...nativeTokenIds];
 const coinGeckoApi = `https://api.coingecko.com/api/v3/simple/price?ids=${coinGeckoIds.join(',')}&vs_currencies=usd`;
 const getPrices = () => __awaiter(void 0, void 0, void 0, function* () {
-    const response = yield axios_1.default.get(coinGeckoApi);
-    return response.data;
+    try {
+        const response = yield axios_1.default.get(coinGeckoApi);
+        return response.data;
+    }
+    catch (error) {
+        console.error('Error fetching prices from CoinGecko:', error);
+        throw new Error('Failed to fetch token prices');
+    }
 });
 exports.getPrices = getPrices;

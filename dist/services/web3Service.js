@@ -15,35 +15,52 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.web3Provider = void 0;
 const web3_1 = __importDefault(require("web3"));
 const chains_1 = require("../config/chains");
-const priceFetchService_1 = require("./priceFetchService");
 class Web3Provider {
     constructor() {
         this.providers = {};
-        // Initialize Web3 instances for each chain
-        Object.entries(chains_1.SUPPORTED_CHAINS).forEach(([chainName, chainConfig]) => {
-            this.providers[chainName] = new web3_1.default(new web3_1.default.providers.HttpProvider(chainConfig.rpcUrl));
-        });
+        try {
+            // Initialize Web3 instances for each chain
+            Object.entries(chains_1.SUPPORTED_CHAINS).forEach(([chainName, chainConfig]) => {
+                try {
+                    this.providers[chainName] = new web3_1.default(new web3_1.default.providers.HttpProvider(chainConfig.rpcUrl));
+                }
+                catch (error) {
+                    console.error(`Error initializing provider for chain ${chainName}:`, error);
+                    throw error;
+                }
+            });
+        }
+        catch (error) {
+            console.error('Error in Web3Provider constructor:', error);
+            throw error;
+        }
     }
     getProvider(chainName) {
-        const provider = this.providers[chainName];
-        if (!provider) {
-            throw new Error(`No provider found for chain: ${chainName}`);
+        try {
+            const provider = this.providers[chainName];
+            if (!provider) {
+                throw new Error(`No provider found for chain: ${chainName}`);
+            }
+            return provider;
         }
-        return provider;
+        catch (error) {
+            console.error(`Error getting provider for chain ${chainName}:`, error);
+            throw error;
+        }
     }
     getNativeBalance(chainName, address) {
         return __awaiter(this, void 0, void 0, function* () {
-            const prices = yield (0, priceFetchService_1.getPrices)();
             try {
                 const web3 = this.getProvider(chainName);
                 const balanceInUnit = yield web3.eth.getBalance(address);
                 const balanceInDec = web3.utils.fromWei(balanceInUnit, 'ether');
                 const chainConfig = chains_1.SUPPORTED_CHAINS[chainName];
-                const nativeValueInUSD = Number(balanceInDec) * prices[chainConfig.nativeToken.coinGeckoId].usd;
+                if (!chainConfig) {
+                    throw new Error(`Chain configuration not found for ${chainName}`);
+                }
                 return {
                     symbol: chainConfig.nativeToken.symbol,
-                    balance: balanceInDec,
-                    valueInUSD: nativeValueInUSD
+                    balance: balanceInDec
                 };
             }
             catch (error) {

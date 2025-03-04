@@ -1,8 +1,6 @@
-import Web3 from 'web3';
 import { AbiItem } from 'web3-utils';
 import { web3Provider } from './web3Service';
 import { SUPPORTED_TOKENS } from '../config/tokens';
-import { getPrices } from './priceFetchService';
 
 const ERC20_ABI: AbiItem[] = [
   {
@@ -47,34 +45,55 @@ export class ERC20Service {
   }
 
   async getTokenDecimals(chainName: string, tokenAddress: string): Promise<number> {
-    const web3 = web3Provider.getProvider(chainName);
-    const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
-    const decimals = await contract.methods.decimals().call();
-    return Number(decimals);
+    try {
+      const web3 = web3Provider.getProvider(chainName);
+      const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+      const decimals = await contract.methods.decimals().call();
+      return Number(decimals);
+    } catch (error) {
+      console.error(`Error fetching token decimals:`, error);
+      throw error;
+    }
   }
 
   async getTokenSymbol(chainName: string, tokenAddress: string): Promise<string> {
-    const web3 = web3Provider.getProvider(chainName);
-    const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
-    return await contract.methods.symbol().call();
+    try {
+      const web3 = web3Provider.getProvider(chainName);
+      const contract = new web3.eth.Contract(ERC20_ABI, tokenAddress);
+      return await contract.methods.symbol().call();
+    } catch (error) {
+      console.error(`Error fetching token symbol:`, error);
+      throw error;
+    }
   }
 
-  async getTokenBalances(chainName: string, walletAddress: string): Promise<{ symbol: string, balance: string}[]> {  
-    const prices = await getPrices();
-    const balances = await Promise.all(SUPPORTED_TOKENS.filter((token) => token.chainName === chainName).map(async (token) => {
-      const balanceInUnit = await this.getTokenBalance(chainName, token.address, walletAddress);
-      const decimals = await this.getTokenDecimals(chainName, token.address);
-      const balanceInDec = web3Provider.getProvider(chainName).utils.fromWei(balanceInUnit, decimals);
-      const tokenPrice = prices[token.coinGeckoId].usd;
-      const tokenBalance = Number(balanceInDec);
-      const tokenValueInUSD = tokenPrice * tokenBalance;
-      return {
-        symbol: token.symbol,
-        balance: balanceInDec,
-        valueInUSD: tokenValueInUSD
-      };
-    }));
-    return balances;
+  async getTokenBalances(chainName: string, walletAddress: string): Promise<{ symbol: string, balance: string, coinGeckoId: string}[]> {  
+    try {
+      const balances = await Promise.all(SUPPORTED_TOKENS.filter((token) => token.chainName === chainName).map(async (token) => {
+        try {
+          const balanceInUnit = await this.getTokenBalance(chainName, token.address, walletAddress);
+          const decimals = await this.getTokenDecimals(chainName, token.address);
+          const balanceInDec = web3Provider.getProvider(chainName).utils.fromWei(balanceInUnit, decimals);
+          return {
+            symbol: token.symbol,
+            balance: balanceInDec,
+            coinGeckoId: token.coinGeckoId
+          };
+        } catch (error) {
+          console.error(`Error processing token ${token.symbol}:`, error);
+          // Return a zero balance for failed tokens instead of failing the entire request
+          return {
+            symbol: token.symbol,
+            balance: '0',
+            coinGeckoId: token.coinGeckoId
+          };
+        }
+      }));
+      return balances;
+    } catch (error) {
+      console.error('Error fetching token balances:', error);
+      throw error;
+    }
   }
 }
 
