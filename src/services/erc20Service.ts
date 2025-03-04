@@ -59,19 +59,15 @@ export class ERC20Service {
     return await contract.methods.symbol().call();
   }
 
-  async getTokenBalances(chainName: string, walletAddress: string): Promise<{ symbol: string, balance: string}[]> {  
-    const prices = await getPrices();
+  async getTokenBalances(chainName: string, walletAddress: string): Promise<{ symbol: string, balance: string, coinGeckoId: string}[]> {  
     const balances = await Promise.all(SUPPORTED_TOKENS.filter((token) => token.chainName === chainName).map(async (token) => {
       const balanceInUnit = await this.getTokenBalance(chainName, token.address, walletAddress);
       const decimals = await this.getTokenDecimals(chainName, token.address);
       const balanceInDec = web3Provider.getProvider(chainName).utils.fromWei(balanceInUnit, decimals);
-      const tokenPrice = prices[token.coinGeckoId].usd;
-      const tokenBalance = Number(balanceInDec);
-      const tokenValueInUSD = tokenPrice * tokenBalance;
       return {
         symbol: token.symbol,
         balance: balanceInDec,
-        valueInUSD: tokenValueInUSD
+        coinGeckoId: token.coinGeckoId
       };
     }));
     return balances;

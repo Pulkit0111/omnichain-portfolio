@@ -44,5 +44,5 @@ class DatabaseService {
     }
 }
 exports.DatabaseService = DatabaseService;
-DatabaseService.STALE_THRESHOLD = 60 * 60 * 1000; // 30 minutes in milliseconds
+DatabaseService.STALE_THRESHOLD = 60 * 60 * 1000; // 60 minutes in milliseconds
 exports.dbService = new DatabaseService();

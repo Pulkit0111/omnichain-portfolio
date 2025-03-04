@@ -20,18 +20,15 @@ class Web3Provider {
     return provider;
   }
 
-  async getNativeBalance(chainName: string, address: string): Promise<{symbol: string, balance: string, valueInUSD: number}> {
-    const prices = await getPrices();
+  async getNativeBalance(chainName: string, address: string): Promise<{symbol: string, balance: string}> {
     try {
       const web3 = this.getProvider(chainName);
       const balanceInUnit = await web3.eth.getBalance(address);
       const balanceInDec = web3.utils.fromWei(balanceInUnit, 'ether');
       const chainConfig = SUPPORTED_CHAINS[chainName];
-      const nativeValueInUSD = Number(balanceInDec) * prices[chainConfig.nativeToken.coinGeckoId].usd;
       return {
         symbol: chainConfig.nativeToken.symbol,
-        balance: balanceInDec,
-        valueInUSD: nativeValueInUSD
+        balance: balanceInDec
       };
     } catch (error) {
       console.error(`Error fetching balance for ${chainName}:`, error);

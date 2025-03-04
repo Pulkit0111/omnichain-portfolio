@@ -14,6 +14,7 @@ const chains_1 = require("../config/chains");
 const web3Service_1 = require("../services/web3Service");
 const erc20Service_1 = require("../services/erc20Service");
 const dbService_1 = require("../services/dbService");
+const priceFetchService_1 = require("../services/priceFetchService");
 const getPortfolio = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { walletAddress } = req.params;
@@ -26,6 +27,7 @@ const getPortfolio = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         // 2. Data is stale
         // 3. Force refresh is requested
         if (!existingData || existingData.isStale || forceRefresh) {
+            const prices = yield (0, priceFetchService_1.getPrices)(); //get prices for all tokens
             let balances = {};
             // Fetch native token and ERC20 balances for each chain
             for (const [chainName, chainConfig] of Object.entries(chains_1.SUPPORTED_CHAINS)) {
@@ -36,13 +38,18 @@ const getPortfolio = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     native: {
                         symbol: chainConfig.nativeToken.symbol,
                         balance: nativeBalance.balance,
-                        valueInUSD: nativeBalance.valueInUSD,
+                        valueInUSD: Number(nativeBalance.balance) * prices[chainConfig.nativeToken.coinGeckoId].usd
                     },
                     erc20Tokens: []
                 };
                 // Get ERC20 balances for this chain
                 const erc20Balances = yield erc20Service_1.erc20Service.getTokenBalances(chainName, walletAddress);
-                balances[chainName].erc20Tokens = erc20Balances;
+                const erc20BalancesWithValues = erc20Balances.map((balance) => ({
+                    symbol: balance.symbol,
+                    balance: balance.balance,
+                    valueInUSD: Number(balance.balance) * prices[balance.coinGeckoId].usd
+                }));
+                balances[chainName].erc20Tokens = erc20BalancesWithValues;
             }
             // Create portfolio object
             const portfolio = {

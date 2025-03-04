@@ -12,7 +12,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.erc20Service = exports.ERC20Service = void 0;
 const web3Service_1 = require("./web3Service");
 const tokens_1 = require("../config/tokens");
-const priceFetchService_1 = require("./priceFetchService");
 const ERC20_ABI = [
     {
         constant: true,
@@ -68,18 +67,14 @@ class ERC20Service {
     }
     getTokenBalances(chainName, walletAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const prices = yield (0, priceFetchService_1.getPrices)();
             const balances = yield Promise.all(tokens_1.SUPPORTED_TOKENS.filter((token) => token.chainName === chainName).map((token) => __awaiter(this, void 0, void 0, function* () {
                 const balanceInUnit = yield this.getTokenBalance(chainName, token.address, walletAddress);
                 const decimals = yield this.getTokenDecimals(chainName, token.address);
                 const balanceInDec = web3Service_1.web3Provider.getProvider(chainName).utils.fromWei(balanceInUnit, decimals);
-                const tokenPrice = prices[token.coinGeckoId].usd;
-                const tokenBalance = Number(balanceInDec);
-                const tokenValueInUSD = tokenPrice * tokenBalance;
                 return {
                     symbol: token.symbol,
                     balance: balanceInDec,
-                    valueInUSD: tokenValueInUSD
+                    coinGeckoId: token.coinGeckoId
                 };
             })));
             return balances;

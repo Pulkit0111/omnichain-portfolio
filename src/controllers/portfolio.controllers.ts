@@ -3,6 +3,7 @@ import { web3Provider } from '../services/web3Service'
 import { erc20Service } from '../services/erc20Service'
 import { dbService } from '../services/dbService'
 import { Request, Response } from 'express'
+import { getPrices } from '../services/priceFetchService'
 
 export const getPortfolio = async (req: Request, res: Response) => {
     try {
@@ -18,6 +19,7 @@ export const getPortfolio = async (req: Request, res: Response) => {
       // 2. Data is stale
       // 3. Force refresh is requested
       if (!existingData || existingData.isStale || forceRefresh) {
+        const prices = await getPrices() //get prices for all tokens
         let balances: { [key: string]: any } = {}
 
         // Fetch native token and ERC20 balances for each chain
@@ -30,14 +32,19 @@ export const getPortfolio = async (req: Request, res: Response) => {
             native: {
               symbol: chainConfig.nativeToken.symbol,
               balance: nativeBalance.balance,
-              valueInUSD: nativeBalance.valueInUSD,
+              valueInUSD: Number(nativeBalance.balance) * prices[chainConfig.nativeToken.coinGeckoId].usd
             },
             erc20Tokens: []
           }
 
           // Get ERC20 balances for this chain
           const erc20Balances = await erc20Service.getTokenBalances(chainName, walletAddress)
-          balances[chainName].erc20Tokens = erc20Balances
+          const erc20BalancesWithValues = erc20Balances.map((balance) => ({
+            symbol: balance.symbol,
+            balance: balance.balance,
+            valueInUSD: Number(balance.balance) * prices[balance.coinGeckoId].usd
+          }))
+          balances[chainName].erc20Tokens = erc20BalancesWithValues
         }
 
         // Create portfolio object

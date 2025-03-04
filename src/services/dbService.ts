@@ -1,7 +1,7 @@
 import { WalletBalance } from '../models/asset.model';
 
 export class DatabaseService {
-  private static STALE_THRESHOLD = 60 * 60 * 1000; // 30 minutes in milliseconds
+  private static STALE_THRESHOLD = 60 * 60 * 1000; // 60 minutes in milliseconds
 
   async getWalletBalance(walletAddress: string): Promise<any | null> {
     const wallet = await WalletBalance.findOne({ wallet: walletAddress }).lean();
