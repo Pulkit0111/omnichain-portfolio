@@ -34,7 +34,7 @@ class Web3Provider {
     }
   }
 
-  async getNativeBalance(chainName: string, address: string): Promise<{symbol: string, balance: string}> {
+  async getNativeBalance(chainName: string, address: string): Promise<{symbol: string, balance: string, logoUrl: string}> {
     try {
       const web3 = this.getProvider(chainName);
       const balanceInUnit = await web3.eth.getBalance(address);
@@ -47,7 +47,8 @@ class Web3Provider {
 
       return {
         symbol: chainConfig.nativeToken.symbol,
-        balance: balanceInDec
+        balance: balanceInDec,
+        logoUrl: chainConfig.nativeToken.logoUrl
       };
     } catch (error) {
       console.error(`Error fetching balance for ${chainName}:`, error);

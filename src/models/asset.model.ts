@@ -2,7 +2,8 @@ import mongoose from 'mongoose';
 const TokenBalanceSchema = new mongoose.Schema({
   symbol: { type: String, required: true },
   balance: { type: String, required: true },
-  valueInUSD: { type: Number, required: true }
+  valueInUSD: { type: Number, required: true },
+  logoUrl: { type: String, required: true }
 }, {
   versionKey: false,
   _id: false
@@ -11,7 +12,8 @@ const TokenBalanceSchema = new mongoose.Schema({
 const NativeBalanceSchema = new mongoose.Schema({
   symbol: { type: String, required: true },
   balance: { type: String, required: true },
-  valueInUSD: { type: Number, required: true }
+  valueInUSD: { type: Number, required: true },
+  logoUrl: { type: String, required: true }
 }, {
   versionKey: false,
   _id: false

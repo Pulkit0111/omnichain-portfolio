@@ -67,7 +67,7 @@ export class ERC20Service {
     }
   }
 
-  async getTokenBalances(chainName: string, walletAddress: string): Promise<{ symbol: string, balance: string, coinGeckoId: string}[]> {  
+  async getTokenBalances(chainName: string, walletAddress: string): Promise<{ symbol: string, balance: string, coinGeckoId: string, logoUrl: string}[]> {  
     try {
       const balances = await Promise.all(SUPPORTED_TOKENS.filter((token) => token.chainName === chainName).map(async (token) => {
         try {
@@ -77,7 +77,8 @@ export class ERC20Service {
           return {
             symbol: token.symbol,
             balance: balanceInDec,
-            coinGeckoId: token.coinGeckoId
+            coinGeckoId: token.coinGeckoId,
+            logoUrl: token.logoUrl
           };
         } catch (error) {
           console.error(`Error processing token ${token.symbol}:`, error);
@@ -85,7 +86,8 @@ export class ERC20Service {
           return {
             symbol: token.symbol,
             balance: '0',
-            coinGeckoId: token.coinGeckoId
+            coinGeckoId: token.coinGeckoId,
+            logoUrl: token.logoUrl
           };
         }
       }));

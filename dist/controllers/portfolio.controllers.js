@@ -38,7 +38,8 @@ const getPortfolio = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     native: {
                         symbol: chainConfig.nativeToken.symbol,
                         balance: nativeBalance.balance,
-                        valueInUSD: Number(nativeBalance.balance) * prices[chainConfig.nativeToken.coinGeckoId].usd
+                        valueInUSD: Number(nativeBalance.balance) * prices[chainConfig.nativeToken.coinGeckoId].usd,
+                        logoUrl: nativeBalance.logoUrl
                     },
                     erc20Tokens: []
                 };
@@ -47,7 +48,8 @@ const getPortfolio = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 const erc20BalancesWithValues = erc20Balances.map((balance) => ({
                     symbol: balance.symbol,
                     balance: balance.balance,
-                    valueInUSD: Number(balance.balance) * prices[balance.coinGeckoId].usd
+                    valueInUSD: Number(balance.balance) * prices[balance.coinGeckoId].usd,
+                    logoUrl: balance.logoUrl
                 }));
                 balances[chainName].erc20Tokens = erc20BalancesWithValues;
             }

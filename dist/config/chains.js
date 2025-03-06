@@ -11,7 +11,8 @@ exports.SUPPORTED_CHAINS = {
         nativeToken: {
             symbol: 'ETH',
             decimals: 18,
-            coinGeckoId: 'ethereum'
+            coinGeckoId: 'ethereum',
+            logoUrl: 'https://coin-images.coingecko.com/coins/images/279/small/ethereum.png?1696501628'
         }
     },
     polygon: {
@@ -21,7 +22,8 @@ exports.SUPPORTED_CHAINS = {
         nativeToken: {
             symbol: 'POL',
             decimals: 18,
-            coinGeckoId: 'matic-network'
+            coinGeckoId: 'matic-network',
+            logoUrl: 'https://coin-images.coingecko.com/coins/images/4713/small/polygon.png?1698233745'
         }
     }
 };

@@ -88,7 +88,8 @@ class ERC20Service {
                         return {
                             symbol: token.symbol,
                             balance: balanceInDec,
-                            coinGeckoId: token.coinGeckoId
+                            coinGeckoId: token.coinGeckoId,
+                            logoUrl: token.logoUrl
                         };
                     }
                     catch (error) {
@@ -97,7 +98,8 @@ class ERC20Service {
                         return {
                             symbol: token.symbol,
                             balance: '0',
-                            coinGeckoId: token.coinGeckoId
+                            coinGeckoId: token.coinGeckoId,
+                            logoUrl: token.logoUrl
                         };
                     }
                 })));

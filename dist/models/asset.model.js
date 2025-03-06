@@ -8,7 +8,8 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const TokenBalanceSchema = new mongoose_1.default.Schema({
     symbol: { type: String, required: true },
     balance: { type: String, required: true },
-    valueInUSD: { type: Number, required: true }
+    valueInUSD: { type: Number, required: true },
+    logoUrl: { type: String, required: true }
 }, {
     versionKey: false,
     _id: false
@@ -16,7 +17,8 @@ const TokenBalanceSchema = new mongoose_1.default.Schema({
 const NativeBalanceSchema = new mongoose_1.default.Schema({
     symbol: { type: String, required: true },
     balance: { type: String, required: true },
-    valueInUSD: { type: Number, required: true }
+    valueInUSD: { type: Number, required: true },
+    logoUrl: { type: String, required: true }
 }, {
     versionKey: false,
     _id: false

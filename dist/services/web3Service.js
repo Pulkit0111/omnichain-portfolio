@@ -60,7 +60,8 @@ class Web3Provider {
                 }
                 return {
                     symbol: chainConfig.nativeToken.symbol,
-                    balance: balanceInDec
+                    balance: balanceInDec,
+                    logoUrl: chainConfig.nativeToken.logoUrl
                 };
             }
             catch (error) {

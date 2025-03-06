@@ -10,6 +10,7 @@ export interface ChainConfig {
     symbol: string;
     decimals: number;
     coinGeckoId: string; //for fetching price from coinGecko
+    logoUrl: string;
   };
 }
 
@@ -21,7 +22,8 @@ export const SUPPORTED_CHAINS: { [key: string]: ChainConfig } = {
     nativeToken: {
       symbol: 'ETH',
       decimals: 18,
-      coinGeckoId: 'ethereum'
+      coinGeckoId: 'ethereum',
+      logoUrl: 'https://coin-images.coingecko.com/coins/images/279/small/ethereum.png?1696501628'
     }
   },
   polygon: {
@@ -31,7 +33,8 @@ export const SUPPORTED_CHAINS: { [key: string]: ChainConfig } = {
     nativeToken: {
       symbol: 'POL',
       decimals: 18,
-      coinGeckoId: 'matic-network'
+      coinGeckoId: 'matic-network',
+      logoUrl: 'https://coin-images.coingecko.com/coins/images/4713/small/polygon.png?1698233745'
     }
   }
 }
